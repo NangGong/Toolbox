@@ -12,7 +12,7 @@
 
 具体使用发送#help Toolbox使用。
 
-docker部署插件配置添加以下信息，以下信息为配置SD绘画
+docker部署插件配置添加以下信息，以下信息为配置IS的SD绘画
 ```
  "Toolbox":{
         "is_key":"",
