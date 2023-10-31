@@ -1,6 +1,6 @@
 ## 一个基于[ChatGPT-on-Wechat](https://github.com/zhayujie/chatgpt-on-wechat)项目的简单插件，直接调用一些实用的api接口！
 
-## 可以调用两个SD接口，以及AI艺术二维码制作等功能！
+## 可以调用两个不同的SD绘画接口，以及AI艺术二维码制作等功能！
 
 ### 安装
 
