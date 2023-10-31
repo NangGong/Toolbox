@@ -155,7 +155,7 @@ class Apilot(Plugin):
         help_text += "  🧑‍💻 职场日历: 发送“职场日历”获取职场人日历。\n"
         help_text += "  🧑 随机头像: 发送“随机头像”获取随机头像。\n"
         help_text += "  🚀 抖音下载: 发送“抖音去水印https://www.abc.com”下载无水印视频。\n"
-        help_text += "  🚀 AI二维码: 发送“二维码:https://www.abc.com”制作。\n"
+        help_text += "  🚀 AI二维码: 发送“二维码 cat:你好”来制作二维码。\n"
 
         help_text += "\n🎨 SD绘画：\n"
         help_text += "\n🎨 示例：$SD girl\n"
