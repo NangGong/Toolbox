@@ -12,5 +12,14 @@
 
 具体使用发送#help Toolbox使用。
 
-有两个SD接口，其中一个需要配合
+docker部署插件配置添加以下信息，以下信息为配置SD绘画
+```
+ "Toolbox":{
+        "is_key":"",
+        "is_sd_domain":"https://domain.com"
+    },
+```
+其他方式直接在源码中复制模板，具体看项目文档。
+
+有两个SD接口，其中一个需要配合使用：https://github.com/NangGong/SD-ON-PHP
 
