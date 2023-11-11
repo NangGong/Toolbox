@@ -32,10 +32,12 @@ class Apilot(Plugin):
                 logger.warn("[Toolbox] inited but alapi_token not found in config")
                 self.is_key = None
                 self.is_sd_domain = None
+                self.dalle_key =None
             else:
                 logger.info("[Toolbox] inited and alapi_token loaded successfully")
                 self.is_key = self.conf["is_key"]
                 self.is_sd_domain = self.conf["is_sd_domain"]
+                self.dalle_key = self.conf["dalle_key"]
             self.handlers[Event.ON_HANDLE_CONTEXT] = self.on_handle_context
         except Exception as e:
             raise self.handle_error(e, "[Apiot] init failed, ignore ")
@@ -49,11 +51,27 @@ class Apilot(Plugin):
         logger.debug("[Apilot] on_handle_context. content: %s" % content)
 
         if content == "每日新闻":
-            news = self.get_morning_news()
+            news = self.get_oneday_60s()
             reply_type = ReplyType.IMAGE_URL if self.is_valid_url(news) else ReplyType.TEXT
             reply = self.create_reply(reply_type, news or "早报服务异常，请检查配置或者查看服务器log")
             e_context["reply"] = reply
             e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑
+        
+        if content == "每日热搜":
+            hot = self.get_hot_60s()
+            reply_type = ReplyType.IMAGE_URL if self.is_valid_url(hot) else ReplyType.TEXT
+            reply = self.create_reply(reply_type, hot or "早报服务异常，请检查配置或者查看服务器log")
+            e_context["reply"] = reply
+            e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑    
+        
+        if content == "摸鱼视频版":
+            moyu_girl = self.get_moyu_girl()
+            reply_type = ReplyType.VIDEO_URL if self.is_valid_url(moyu_girl) else ReplyType.TEXT
+            reply = self.create_reply(reply_type, moyu_girl or "早报服务异常，请检查配置或者查看服务器log")
+            e_context["reply"] = reply
+            e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑 
+        
+            
         if content == "摸鱼日历":
             moyu = self.get_moyu_calendar()
             reply_type = ReplyType.IMAGE_URL if self.is_valid_url(moyu) else ReplyType.TEXT
@@ -127,7 +145,41 @@ class Apilot(Plugin):
              reply = self.create_reply(reply_type, isdraw or "服务异常，请检查配置或者查看服务器log")
              e_context["reply"] = reply
              e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑  
-        
+             
+        if content.startswith("/de3"):
+             if not self.dalle_key:
+                self.handle_error("key not configured", "请求失败")
+                reply = self.create_reply(ReplyType.TEXT, "请先配置key")
+                e_context["reply"] = reply
+                e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑
+                return  # End the function here
+             prompt = content[4:].strip()
+             model = "dall-e-3"
+             key = self.dalle_key
+             domain = self.is_sd_domain                
+             dalle3 = self.get_dalle_calendar(key,domain,prompt,model)
+             reply_type = ReplyType.IMAGE_URL if self.is_valid_url(dalle3) else ReplyType.TEXT
+             reply = self.create_reply(reply_type, dalle3 or "服务异常，请检查配置或者查看服务器log")
+             e_context["reply"] = reply
+             e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑  
+             
+        if content.startswith("/de2"):
+             if not self.dalle_key:
+                self.handle_error("key not configured", "请求失败")
+                reply = self.create_reply(ReplyType.TEXT, "请先配置key")
+                e_context["reply"] = reply
+                e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑
+                return  # End the function here
+             prompt = content[4:].strip()
+             model = "dall-e-2"
+             key = self.dalle_key
+             domain = self.is_sd_domain                
+             dalle3 = self.get_dalle_calendar(key,domain,prompt,model)
+             reply_type = ReplyType.IMAGE_URL if self.is_valid_url(dalle3) else ReplyType.TEXT
+             reply = self.create_reply(reply_type, dalle3 or "服务异常，请检查配置或者查看服务器log")
+             e_context["reply"] = reply
+             e_context.action = EventAction.BREAK_PASS  # 事件结束，并跳过处理context的默认逻辑       
+             
         if content.startswith("二维码 "):
              string = content[4:].strip()
              prompt, url = string.split(':', 1)            
@@ -151,26 +203,22 @@ class Apilot(Plugin):
         # 娱乐和信息类
         help_text += "\n🎉 娱乐与资讯：\n"
         help_text += "  🌅 每日新闻: 发送“每日新闻”获取早报。\n"
+        help_text += "  🌅 每日热搜: 发送“每日热搜”获取每日热搜。\n"
         help_text += "  🐟 摸鱼日历: 发送“摸鱼日历”获取摸鱼人日历。\n"
+        help_text += "  🐟 摸鱼日历视频版: 发送“摸鱼视频版”获取摸鱼视频版。\n"
         help_text += "  🧑‍💻 职场日历: 发送“职场日历”获取职场人日历。\n"
         help_text += "  🧑 随机头像: 发送“随机头像”获取随机头像。\n"
         help_text += "  🚀 抖音下载: 发送“抖音去水印https://www.abc.com”下载无水印视频。\n"
         help_text += "  🚀 AI二维码: 发送“二维码 cat:你好”来制作二维码。\n"
 
         help_text += "\n🎨 SD绘画：\n"
-        help_text += "\n🎨 示例：$SD girl\n"
-        help_text += "\n🎨 示例：$SD 竖版 girl\n"
-        help_text += "\n🎨 示例：$SD 横版 girl\n"
-        
-        help_text += "\n🎨 SD绘画：\n"
-        help_text += "\n🎨 示例：/sd girl\n"
-        help_text += "\n🎨 示例：/sd 竖版 girl\n"
-        help_text += "\n🎨 示例：/sd 横版 girl\n"
-        help_text += "\n🎨 示例：/sd 漫画girl\n"
-        help_text += "\n🎨 示例：/sd 漫画横版girl\n"
-        help_text += "\n🎨 示例：/sd 漫画竖版girl\n"
-        
-        
+        help_text += "🎨 示例：$SD girl，$SD 竖版 girl，$SD 横版 girl\n"
+        help_text += "🎨 SD绘画：\n"
+        help_text += "🎨 示例：/sd girl，/sd 漫画girl\n"
+        help_text += "🎨 示例：/sd 竖版 girl，/sd 横版 girl\n"
+        help_text += "🎨 示例：/sd 漫画横版girl，/sd 漫画竖版girl\n"
+
+                
 
 
         return help_text
@@ -187,8 +235,22 @@ class Apilot(Plugin):
                     return self.handle_error(morning_news_info, "get_morning_news失败")
             except Exception as e:
                 return self.handle_error(e, "早报获取失败")
-
-
+    
+    def get_oneday_60s(self):
+            url = "https://api.pearktrue.cn/api/60s/image/"
+                            
+            return url
+    
+    def get_hot_60s(self):
+            url = "https://api.pearktrue.cn/api/60s/image/hot/"
+                            
+            return url
+    
+    def get_moyu_girl(self):
+            url = "https://dayu.qqsuu.cn/moyuribaoshipin/apis.php"
+                            
+            return url
+    
     def get_moyu_calendar(self):
         url = BASE_URL_VVHAN + "moyu?type=json"
         payload = "format=json"
@@ -264,7 +326,21 @@ class Apilot(Plugin):
         except Exception as e:
             return self.handle_error(e, "获取信息失败")   
         
-         
+    def get_dalle_calendar(self,key,domain,prompt,model):
+        url = domain+"/api/dalle/?key="+key+"&model="+model
+       # payload = "format=json"
+        data = {"prompt": prompt}
+        headers = {'Content-Type': "application/x-www-form-urlencoded"}
+
+        try:
+            dalle_calendar_info = self.make_request(url, method="POST", headers=headers, data=data)
+            # 验证请求是否成功
+            if isinstance(dalle_calendar_info, dict) and dalle_calendar_info['success']:
+                return dalle_calendar_info['url']
+            else:
+                return self.handle_error(dalle_calendar_info, dalle_calendar_info['message'])
+        except Exception as e:
+            return self.handle_error(e, "获取信息失败")     
     
     def get_aiqrcode(self, prompt, url):
         url = "https://api.pearktrue.cn/api/aiqrcode/?prompt="+prompt+"&url="+url
