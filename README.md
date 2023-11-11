@@ -18,7 +18,8 @@ docker部署插件配置添加以下信息，以下信息为配置IS的SD绘画
 ```
  "Toolbox":{
         "is_key":"",
-        "is_sd_domain":"https://domain.com"
+        "is_sd_domain":"https://domain.com",
+        "dalle_key":"sk-xxxxxxxxxxxxxxxxxxxxxx"
     },
 ```
 is的key申请地址：https://www.isddi.cn/
