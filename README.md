@@ -1,6 +1,6 @@
 ## 一个基于[ChatGPT-on-Wechat](https://github.com/zhayujie/chatgpt-on-wechat)项目的简单插件，直接调用一些实用的api接口！
 
-## 可以调用两个不同的SD绘画接口，还要DALL-E3绘画，以及AI艺术二维码制作等功能！
+## 可以调用两个不同的SD绘画接口，还有DALL-E3绘画，以及AI艺术二维码制作等功能！
 ### 说明
 - 这个插件是基于ChatGPT-on-Wechat项目的插件
 - 该插件集成了许多的api接口，比如sd绘画，dalle绘画，以及一些摸鱼早报等功能，具体安装后发送#hello toolbox查看功能
