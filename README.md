@@ -23,6 +23,7 @@
 - is_key是你申请的sd的key
 - is_sd_domain是你搭建的php网站域名
 - https://domain.com格式是这样，不要有任何后缀
+- dalle_key是你自己设置的一个key可以随便，后续需要在PHP网站上填入这个
 - 配置完成后发送#help Toolbox使用
 ```
  "Toolbox":{
