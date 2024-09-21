@@ -206,7 +206,8 @@ class Toolbox(Plugin):
         if content.startswith("card"):
             prompt = content[4:].strip()
             card = self.get_chinese_card(prompt)
-            reply = self.create_reply(ReplyType.TEXT, card)
+            reply_type = ReplyType.IMAGE_URL if self.is_valid_url(card) else ReplyType.TEXT
+            reply = self.create_reply(reply_type, card or "服务异常，请检查配置或者查看服务器log")
             e_context["reply"] = reply
             e_context.action = EventAction.BREAK_PASS
 
@@ -401,11 +402,11 @@ class Toolbox(Plugin):
             return self.handle_error(e, "获取失败!")
 
     def get_chinese_card(self, prompt):
-        url = "https://api.ngnet.work/api/card?msg=" + prompt
+        url = "https://card.ngnet.work/api/card?msg=" + prompt
         try:
             card = self.make_request(url, method="GET")
             if isinstance(card, dict) and card['success']:
-                return card['file_path']
+                return card['image_url']
             else:
                 return self.handle_error(card, "请求失败！")
         except Exception as e:
